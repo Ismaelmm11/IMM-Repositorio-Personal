@@ -11,9 +11,18 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+/**
+ * Clase con el único proposito de cargar recursos multimedia.
+ */
 public class Multimedia {
 	
 	
+	/**
+     * Carga una imagen desde un archivo especificado por la ruta.
+     * 
+     * @param ruta La ruta del archivo de imagen.
+     * @return La imagen cargada como BufferedImage, o null si ocurre un error.
+     */
 	public static BufferedImage CargarImagen(String ruta) {
 		
 		try {
@@ -25,6 +34,14 @@ public class Multimedia {
 		return null;	
 	}
 	
+	
+	/**
+     * Carga una fuente desde un archivo especificado por la ruta y ajusta su tamaño.
+     * 
+     * @param ruta La ruta del archivo de fuente.
+     * @param tamano El tamaño deseado para la fuente.
+     * @return La fuente cargada como Font, o null si ocurre un error.
+     */
 	public static Font CargarFuente(String ruta, int tamano) {
 		
 		try {
@@ -37,6 +54,13 @@ public class Multimedia {
 		return null;
 	}
 	
+	
+	/**
+     * Carga un sonido desde un archivo especificado por la ruta.
+     * 
+     * @param ruta La ruta del archivo de sonido.
+     * @return El sonido cargado como Clip, o null si ocurre un error.
+     */
 	public static Clip CargarSonido(String ruta) {
 				
 		try {

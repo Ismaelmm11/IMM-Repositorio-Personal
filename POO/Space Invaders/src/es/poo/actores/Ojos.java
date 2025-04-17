@@ -1,23 +1,46 @@
 package es.poo.actores;
 
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import es.poo.estado.EstadoJuego;
+import es.poo.grafico.Recursos;
 import es.poo.math.Vector2D;
 import es.poo.ventana.Ventana;
 
-public class Ojos extends FiguraMovil{
+/**
+ * La clase que extiende a Alien y representa a los objetos Ojo.<br><br>
+ * 
+ * Los Ojos son un tipo de Alien que aparecen para sorprender al jugador desde fuera de los bordes,
+ * digamos que son obstaculos que se mueven por el area de movimiento del Jugador. Tiene un 
+ * movimiento recto y horizontal que puede ser a la izquierda o a la derecha.<br><br>
+ * 
+ * Para su correcto funcionamiento han aparecer en una de las 3 filas en las que se mueve el Jugador (eje Y) 
+ * y tienen que aparecer fuera del plano, es decir fuera del rango de los -100px y los 1200 px (eje X), 
+ * con el objetivo de sorprender al Jugador.
+ */
+public class Ojos extends Alien{
 	
-	private Vector2D vectorVelocidad;
+	private static final BufferedImage[] framesOjo = Recursos.ojos;
 	
 	private int sentido;
 	
-	private static final int PUNTUACION = 500;
+	private double velocidad;
 
-	public Ojos(Vector2D posicion, Vector2D direccion, double velocidad, BufferedImage imagen, BufferedImage[] frames, EstadoJuego estado, int sentido) {
-		super(posicion, direccion, velocidad, imagen, frames, estado);
+	/**
+	 * Constructor de la clase Ojos.
+	 * 
+	 * @param posicion 	- Posicion inicial del Ojo.
+	 * @param velocidad	- Velocidad de desplazamiento del Ojo.
+	 * @param imagen	- Imagen que representa al Ojo.
+	 * @param sentido	- La direccion en la que se mueve el Ojo (0 = hacia la derecha, 1 = hacia la izquierda).
+	 */
+	public Ojos(Vector2D posicion, BufferedImage imagen, int vida, int puntuacion, double velocidad, int sentido) {
+		super(posicion, imagen, vida, puntuacion);
 		
-		vectorVelocidad = direccion.multiplicar(velocidad);
+		this.velocidad = velocidad;
+		
+		setFrames(framesOjo);
 		
 		this.sentido = sentido; 	// Sentido = 0(derecha) o otro(izquierda).
 		if(sentido == 0) {
@@ -46,24 +69,55 @@ public class Ojos extends FiguraMovil{
 		temporizador.actualizar();
 	
 		if(sentido == 0) {
-			posicion = posicion.addX(vectorVelocidad);
+			posicion = posicion.addX(velocidad);
 			if(posicion.getX() > Ventana.ANCHO) {
-				estado.getFigurasMoviles().remove(this);
+				EstadoJuego.getFigurasMoviles().remove(this);
 			}
 		}
 		else {
-			posicion = posicion.subX(vectorVelocidad);
+			posicion = posicion.subX(velocidad);
 			
-			if(posicion.getX() < 0) {
-				estado.getFigurasMoviles().remove(this);
+			if(posicion.getX() < -100) {
+				EstadoJuego.getFigurasMoviles().remove(this);
 			}
 		}
 		
+		setCentro();
 		colision();
 	}
 	
-	public void kill() {
-		estado.puntuar(PUNTUACION, posicion);
-		super.kill();
+	public void dibujar(Graphics g) {
+		super.dibujar(g);
+		
+		/* Debug gráfico
+		g.setColor(Color.YELLOW);
+		g.drawString("Xe", (int)getCentro().getX(), (int)getCentro().getY());
+		
+		g.drawRect((int)posicion.getX(), (int)posicion.getY(), super.ancho, super.alto);
+		*/
+	}
+	
+
+	/**
+	 * Método totalmente sobreescrito que comprueba que la posicion inicial del Ojo está en alguna de las filas del
+	 * jugador.
+	 * 
+	 * @throws IllegalArgumentException - Si la posicion inicial del Ojo está fuera de las filas del Jugador.
+	 */
+	protected void checkPosicion() throws IllegalArgumentException {
+		
+		double y = posicion.getY();
+	
+		if(y == EstadoJuego.getFilaJug(1) || y == EstadoJuego.getFilaJug(2) || y == EstadoJuego.getFilaJug(3)) {
+			return;
+		}
+		else {
+			throw new IllegalArgumentException("Para el correcto funcionamiento del juego se recomienda colocar"
+					+ "los aliens Ojos en \nalguna de las filas del Jugador.");
+		}
+	}
+
+	public void iniciarCronometro() {
+		// Método vacío
 	}
 }

@@ -8,124 +8,178 @@ import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
 
-import es.poo.entrada.Teclado;
-import es.poo.estado.EstadoJuego;
+import es.poo.entrada.*;
+import es.poo.estado.*;
 import es.poo.grafico.Recursos;
 
 @SuppressWarnings("serial")
 public class Ventana extends JFrame implements Runnable{
 	
+	//---------------------------------[ Variables para manejar el flujo y la ventana ] -----------------------------------------//
+	
+	// Constantes que definen el ancho y alto de la ventana.
 	public static final int ANCHO = 1200;
 	public static final int ALTO = 700;
 	
-	private static final int FPS = 60;						//Establecemos los FPS a los que va a funcionar el juego.
-	private static final double REFRESH = 1000000000/FPS; 	//Establecemos la tasa de refresco (ns).
+	// Constantes que definen el número de frames por segundo (FPS) y el tiempo de refresco (en nanosegundos).
+	private static final int FPS = 60;						
+	private static final double REFRESH = 1000000000/FPS; 	
 	
+	// Objeto Canvas que nos servirá para dibujar por pantalla diferentes elementos.
+	private Canvas canvas;		
 	
-	private Canvas canvas;		//Es un lienzo donde vamos a dibujar.
-	
-	//Necesitamos de un hilo para que el programa pueda realizar varias tareas simultáneamente/concurrentemente
+	// Hilo con el cual vamos a controlar la ejecución del juego.
 	private Thread hilo;
 	
-	private boolean ejecucion = false;
+	private boolean ejecucion = false;	//Bool para ver si el juego está en ejecución.
 	
-	private BufferStrategy buffer;		//Para manipular la memoria tras la pantalla(2º plano).
+	// Objetos BufferStrategy y Graphics para manejar el renderizado de los objetos.
+	private BufferStrategy buffer;		
 	private Graphics g;		
 	
-	private double clk = 0;				//Variable para alamcenar el tiempo que va pasando.
-	private int avgFPS = FPS; 			//Nos va a permitir saber a cuantos FPS va el juego.
-
-	
-	private EstadoJuego estadoJuego;
+	// Variables para controlar el tiempo.
+	private double clk = 0;				
+	private int avgFPS = FPS; 			
 	
 	private Teclado tecla;
+	private Raton raton;
 	
+	
+	/**
+	 * Método constructor de la clase Ventana, con el cuál inicializamos la ventana donde se ejecutará el juego.
+	 */
 	public Ventana() {
 		
    //-------------------------------Crear Ventana----------------------------------------------------//
 		
-		setTitle("Space Invaders");		//Dar título a la ventana.
+		// Dar título a la ventana.
+		setTitle("Space Invaders");		
 		
-		setSize(ANCHO, ALTO);			//Establecer su tamaño.
-		setResizable(false);			//Para que no se pueda modificar el tamaño.
-		setLocationRelativeTo(null);	//La ventana inicia en el centro.
+		// Establecer el tamaño de la ventana.
+		setSize(ANCHO, ALTO);	
 		
+		//.Hacemos que el tamaño no sea modificable.
+		setResizable(false);		
+		
+		// La ventana se inicia en el centro.
+		setLocationRelativeTo(null);	
+		
+		// Parar la ejecucion del programa al cerrarse la ventana
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
 		
 		canvas = new Canvas();
 		
-		//Fijamos las dimensiones del Canvas:
+		// Fijar las dimensiones del Canvas:
 		canvas.setPreferredSize(new Dimension(ANCHO, ALTO));
 		canvas.setMaximumSize(new Dimension(ANCHO, ALTO));
 		canvas.setMinimumSize(new Dimension(ANCHO, ALTO));
 		
-		canvas.setFocusable(true);		//Hacemos que el canvas pueda recibir eventos del teclado.
+		// Hacemos que el canvas sea el que recibe los eventos de entrada del usuario.
+		canvas.setFocusable(true);		
 		
 		tecla = new Teclado();
+		raton = new Raton();
 		
-		canvas.addKeyListener(tecla);
+		// Añadimos listeners para que el canvas detecte:
 		
+		canvas.addMouseListener(raton);				// Clicks del ratón.
+		canvas.addMouseMotionListener(raton);		// Movimiento del ratón.
+		canvas.addKeyListener(tecla);				// Uso de las teclas.
+
+		
+		// Añadimos el canvas a la ventana y que comience la magia.
 		add(canvas);
 	}
 	
-	//Con esta funcion se irá actualizando el valor de los elementos del canvas.
+	
+	/**
+	 * Método para actualizar los elementos que hay dentro del canvas.
+	 */
 	private void actualizar() {
+		// Con esta línea sabemos que tecla se pulsa en cada momento.
 		tecla.actualizar();
-		estadoJuego.actualizar();
+		
+		// Con esta línea actualizamos todos los elementos de la pantalla-
+		Estado.getEstadoActual().actualizar();
 	}
 	
+	
+	/**
+	 * Método con el cual dibujamos los elementos en el canvas.
+	 */
 	private void dibujar() {
 		
-		buffer = canvas.getBufferStrategy();	//Al principio retorna nulo, porque no hemos asignado ningun buffer al canvas.
+		buffer = canvas.getBufferStrategy();
 		
-		//Le asignamos 3 buffers al canvas, uno que ya está listo para ser mostrado, otro que está esperando
-		//a ser mostrado y uno que está dibujando en la imagen. Así se consigue fluidez y eficacia.
+		/* - Al inicio no hay estrategia de buffer, por le asignamos la estrategia del triple buffer:
+		 * - Un buffer está listo para ser mostrado por pantalla.
+		 * - Otro buffer está a la espera para ser mostrado.
+		 * - El último buffer está dibujando la siguiente imagen. */
 		if(buffer == null) {
 			canvas.createBufferStrategy(3);
 			return;
 		}
 		
-		g = buffer.getDrawGraphics();
+		// Obtenemos un Objeto Graphics con el cual vamos a dibujar.
+		g = buffer.getDrawGraphics();	
 		
 		//----------------Comienzo Dibujo-----------------------------//
-		g.fillRect(0,  0,  ANCHO, ALTO);
-		g.setColor(Color.yellow);
-		g.drawString(""+avgFPS, 0, 10);
+
+		g.fillRect(0,  0,  ANCHO, ALTO);		// Rellenamos el fondo del canvas de negro.
+		g.setColor(Color.yellow);				// Asignamos el color amarillo.
+		g.drawString(""+avgFPS, 0, 10);			// Dibujar los fps promedios en la esquina superior izquierda.
 		
-		estadoJuego.dibujar(g);
+		Estado.getEstadoActual().dibujar(g);	// Dibujamos los elementos que hay dentro del canvas.
 		
 		//--------------------Fin Dibujo------------------------------//
 		
+		// Liberamos el Objeto Graphics
 		g.dispose();
-		buffer.show();
 		
+		// Mostramos la imagen que tiene el buffer.
+		buffer.show();		
 	}
 	
 	
+	/**
+	 * Método con el que inicializamos todos los recursos del juego.
+	 * Mientras cargan los recursos del juego mostramos una barra de carga.
+	 */
 	private void inicializar() {
-		Recursos.inicializar();
-		estadoJuego = new EstadoJuego();
+		
+		// Usamos un hilo para cargar los objetos.
+		Thread hiloCarga = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Recursos.inicializar();
+			}
+		});
+
+		Estado.cambiarEstado(new EstadoCarga(hiloCarga));
 	}
 	
-
-	//Este método se encarga de la ejecución del programa.
+	
+	/**
+	 * Método implementado por la interfaz Runnable, básicamente es un método donde se ha de describir lo que debe
+	 * realizar el hilo.
+	 * En nuestro caso controla el bucle principal del juego para actualizar y renderizar los elementos.
+	 */
 	public void run() {
 		
-		long ahora = 0;						//Registra el tiempo
-		long lastTime = System.nanoTime(); 	//Registra la hora actual del sistema en ns.
+		long ahora = 0;						// Variable para registrar el tiempo actual.
+		long lastTime = System.nanoTime(); 	// Variable para marcar el último tiempo de la máquina en ns.
 		
-		//Para registrar los FPS actuales.
-		int frames = 0;
-		long tiempo = 0;
+		int frames = 0;						// Variable que cuenta los frames.
+		long tiempo = 0;					// Variable para contar ns.
 		
 		
 		inicializar();
 		
-		/*Haciendo uso de las variables de tiempo marcamos la ejecución a 60 FPS,
-	 	 *Esto se debe a que solo se actualiza cuando CLK vale 1, es decir cuando 
-		 *se cumple la tasa de refresco.
+		/*Haciendo uso de las variables de tiempo marcamos la ejecución a 60 FPS, esto se debe a que solo 
+		 *actualizamos cuando CLK supera 1, es decir cuando se cumple la tasa de refresco.
 		 */
 		while(ejecucion) {
 			
@@ -136,14 +190,15 @@ public class Ventana extends JFrame implements Runnable{
 			
 			lastTime = ahora;
 			
+			// Cuando clk supera 1 actualizamos y renderizamos 1 frame.
 			if(clk >= 1) {
 				actualizar();
 				dibujar();
-				clk = 0;				//Reiniciamos clk para el siguiente fotograma.
+				clk = 0;	
 				frames++;
-				//System.out.println(frames);
 			}
 			
+			// Cuanto la tiempo supera 1 segundo actualizamos la media de fps.
 			if(tiempo >= 1000000000) {
 				avgFPS = frames;
 				
@@ -154,17 +209,28 @@ public class Ventana extends JFrame implements Runnable{
 		}
 		
 		
-		fin();
+		//fin();
 	}
 	
-	//Con esto iniciamos el programa.
+	
+	/**
+	 * Método con el que se inicializa el juego, por ende se inicia el hilo principal de ejecucion.
+	 */
 	public void iniciar() {
 		
+		/* 
+		 * Se le pasa este objeto como parámetro para que sepa que el método 'run' 
+		 * que debe realizar es el que hay en esta clase. 
+		*/
 		hilo = new Thread(this);		
 		hilo.start();
 		ejecucion = true;
+		
 	}
 	
+	/*
+	 * Usaba este método para finalizar el juego, pero soy bobo y me acabo de dar cuenta que esto nunca se va a ejecutar.
+	 * 
 	//Con esto finalizo el programa.
 	private void fin() {
 		try {
@@ -176,5 +242,5 @@ public class Ventana extends JFrame implements Runnable{
 			System.exit(0);
 		}
 	}
-
+	 */
 }

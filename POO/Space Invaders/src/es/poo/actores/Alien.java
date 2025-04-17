@@ -1,209 +1,132 @@
 package es.poo.actores;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
-import es.poo.estado.EstadoJuego;
-import es.poo.grafico.Recursos;
-import es.poo.grafico.Sonido;
 import es.poo.math.Vector2D;
 
-import java.util.Random;
+/**
+ * Clase 
+ */
+public abstract class Alien extends FiguraMovil{
 
-public class Alien extends FiguraMovil{
+	//-------------------------------------[ Parámetros del Alien] ----------------------------------//
 	
-	private Random aleatorio = new Random();
+	private static final int[] ejesY = {50, 125, 200, 275, 350};	// Valores del eje Y válidos
+	private static final int[] ejesX = {100, 1100};					// Valores del eje X válidos
 	
-	private static final int MIN_CADENCIA = 200;
-    private static final int MAX_CADENCIA = 500;
+	// Puntuacion obtenida al matar al Alien.
+	private int puntuacion;
 	
-	private static final int[] VEL_DISPARO = {5, 5, 5, 5, 5, 7, 10};
+	private int vida;
 	
-	private static final int[] COOR_X_OG = {100, 150, 450, 900};
-	private static final int[] COOR_X_SEP = {100, 120, 150, 170, 200, 300, 400};
-	private static final int[] COOR_Y = {50, 125, 200, 275, 370};
-	
-	private static final int PUNTUACION = 250;
-	
-	
-	
-	private ArrayList<Vector2D> camino = new ArrayList<Vector2D>();
-	
-	private Vector2D vectorVelocidad;
-	private Vector2D centroAbajo;
-	
-	private Sonido sonidoDisparo;
-	
-	private int contador;
-	private int cadencia;
-	private int velocidad;
-	private int i = 0;
-	
-
-	public Alien(Vector2D posicion, Vector2D direccion, double velocidad, BufferedImage imagen, BufferedImage[] frames,
-			Vector2D origen, Vector2D destino, EstadoJuego estado) {
-		super(posicion, direccion, velocidad, imagen, frames, estado);
-
-		vectorVelocidad = direccion.multiplicar(velocidad);
-		centroAbajo = getCentro().subX(direccion.multiplicar(ancho/4.5));
+	/**
+	 * Constructor de la clase Alien.
+	 * 
+	 * @param posicion	- Posicion inicial del Alien.
+	 * @param imagen	- Imagen que representa al Alien.
+	 * 
+	 * @throws IllegalArgumentException Si la posicion inicial es inválida.
+	 */
+	public Alien(Vector2D posicion, BufferedImage imagen, int vida, int puntuacion) throws IllegalArgumentException {
+		super(posicion, imagen);
+		this.vida = vida;
+		this.puntuacion = puntuacion;
 		
-		this.velocidad = getVelocidadRandom();
-		
-		indice = 0;
-		contador = 0;
-
-		camino.add(destino);
-		camino.add(origen);
-		
-		cadencia = getNumeroRandom();
-		
-		//sonidoDisparo = new Sonido(Recursos.sonidoDisparoAlien);
+		checkPosicion();
 	}
 	
-	public static ArrayList<Alien> fabricaDeAliens(int numFila, int numAliens, EstadoJuego esta){
-		ArrayList<Alien> aliens = new ArrayList<Alien>();
-		
-		int n, x, y, separacion;
-		
-		switch(numFila) {
-			case 1:
-				y = COOR_Y[0];
-				break;
-			case 2:
-				y = COOR_Y[1];
-				break;
-			case 3:
-				y = COOR_Y[2];
-				break;
-			case 4:
-				y = COOR_Y[3];
-				break;
-			case 5:
-				y = COOR_Y[4];
-				break;
-			default:
-				y = COOR_Y[2];
-				break;
-		}
-		
-		if(numAliens == 1) {
-			Alien alien = new Alien(new Vector2D(COOR_X_OG[2], y), new Vector2D(1, 0), 2, Recursos.flame[0], Recursos.flame, new Vector2D(COOR_X_OG[0], y), new Vector2D(COOR_X_OG[3], y), esta);
-			aliens.add(alien);
-			
-			return aliens;
-		}
-		else if(numAliens == 2) {
-			n = 2;
-			x = COOR_X_OG[1];
-			separacion = COOR_X_SEP[6];
-		}
-		else if(numAliens == 3) {
-			n = 3;
-			x = COOR_X_OG[0];
-			separacion = COOR_X_SEP[5];
-		}
-		else if(numAliens == 4) {
-			n = 4;
-			x = COOR_X_OG[1];
-			separacion = COOR_X_SEP[4];
-		}
-		else if(numAliens == 5) {
-			n = 5;
-			x = COOR_X_OG[1];
-			separacion = COOR_X_SEP[3];
-		}
-		else if(numAliens == 6) {
-			n = 6;
-			x = COOR_X_OG[0];
-			separacion = COOR_X_SEP[2];
-		}
-		else if(numAliens == 7) {
-			n = 7;
-			x = COOR_X_OG[0];
-			separacion = COOR_X_SEP[1];
-		}
-		else if(numAliens == 8) {
-			n = 8;
-			x = COOR_X_OG[1];
-			separacion = COOR_X_SEP[0];
-		}
-		else if(numAliens == 9) {
-			n = 9;
-			x = COOR_X_OG[0];
-			separacion = COOR_X_SEP[0];
-		}
-		else {
-			n = 6;
-			x = COOR_X_OG[0];
-			separacion = COOR_X_SEP[2];
-		}
-		
-		
-		for(int i = 1; i <= n; i++) {
-			Alien alien = new Alien(new Vector2D(x+(separacion*(i-1)), y), new Vector2D(1, 0), 2, Recursos.flame[0], Recursos.flame, new Vector2D(x + (separacion*(i-1)), y), new Vector2D(x + (separacion*i), y), esta);
-			aliens.add(alien);
-		}
-
-		
-		return aliens;
-	}
-
-	public void actualizar() {
-		
-		super.actualizar();
-		
-		contador++;
-		
-		if(contador >= cadencia && cadencia != 0) {
-			
-			centroAbajo = getCentro().subX(direccion.multiplicar(ancho/4.5));
-			
-			Disparo disparo = new Disparo(
-					centroAbajo,
-					new Vector2D(0, 1),
-					velocidad,
-					Recursos.disparoEvil[0],
-					Recursos.disparoEvil,
-					this,
-					estado);
-			
-			//sonidoDisparo.reproducir();
-			estado.getFigurasMoviles().add(0, disparo);
-			
-			contador = 0;
-		}
-		
-		
-		double distancia = camino.get(0).getDistancia(posicion).getMagnitud();
-		double distancia2 = camino.get(1).getDistancia(posicion).getMagnitud();
-		
-		if (distancia == 0) {
-			i = 1;
-		}
-		else if(distancia2 == 0){
-			i = 0;
-		}
-		
-		if(i%2 == 0) {
-			posicion = posicion.addX(vectorVelocidad);
-		}
-		else {
-			posicion = posicion.subX(vectorVelocidad);
-		}
-		
-		colision();
+	
+	/**
+	 * Método que establece la puntuacion del Alien.
+	 * 
+	 * @param puntuacion - Puntuación a establecer.
+	 */
+	public void setPuntuacion(int puntuacion) {
+		this.puntuacion = puntuacion;
 	}
 	
-	public void kill() {
-		estado.puntuar(PUNTUACION, posicion);
-		super.kill();
+	/**
+	 * Método que devuelve la puntuación del Alien.
+	 * 
+	 * @return - Puntuación del Alien.
+	 */
+	public int getPuntuacion() {
+		return puntuacion;
 	}
 	
-	private int getNumeroRandom() {
-		return aleatorio.nextInt(MAX_CADENCIA - MIN_CADENCIA - 1) + MIN_CADENCIA;
+	public void setPosicion(Vector2D posicion) {
+		checkPosicion();
+		this.posicion = posicion;
 	}
 	
-	private int getVelocidadRandom() {
-		return VEL_DISPARO[(aleatorio.nextInt(VEL_DISPARO.length))];
+	protected void kill() {
+		vida--;
+		if(vida == 0) {
+			super.kill();
+		}
 	}
+	
+	/**
+	 * Método que verifica si la posicion inicial del Alien es válida.
+	 * 
+	 * @throws IllegalArgumentException - Si la posición inicial no es válida.
+	 */
+	protected void checkPosicion() throws IllegalArgumentException {
+		
+		if(checkEjeY() == false) {
+			throw new IllegalArgumentException("Para el correcto funcionamiento de la aplicación se recomienda"
+					+ "colocar en el eje Y\n de los Aliens alguno de los siguientes valores"
+					+ "(50, 125, 200, 275, 350) en px.\n");
+		}
+		
+		if(checkEjeX() == false) {
+			throw new IllegalArgumentException("Para el correcto funcionamiento de la aplicación, se recomienda que"
+					+	"el eje X de los \nAliens esté entre los valores de 100px y 1100px.");
+		}
+	}
+	
+	/**
+	 * Método que valida si la coordenada Y de la posición original es válida.
+	 * Solo es valida si el Alien se coloca en los 50px, 125px, 200px, 275px, 350px
+	 * en el eje Y.
+	 * 
+	 * @return True si es válida, False en caso contrario.
+	 */
+	private boolean checkEjeY() {
+		double ejeY = posicion.getY();
+		
+		for(int i = 0; i <= ejesY.length; i++) {
+			if(ejeY == ejesY[i]) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Método que valida si la coordenada X de la posición origial es válida.
+	 * Solo es valida si el Alien se coloca entre los 100px y 1100px del eje X. 
+	 * 
+	 * @return True en caso de que sea válida, False en caso contrario.
+	 */
+	private boolean checkEjeX() {
+		double ejeX = posicion.getX();
+		
+		if(ejeX >= ejesX[0] && ejeX <= ejesX[1]) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public void setVida(int vida) {
+		this.vida = vida;
+	}
+	
+	public int getVida() {
+		return vida;
+	}
+	
+	public abstract void iniciarCronometro();
 }

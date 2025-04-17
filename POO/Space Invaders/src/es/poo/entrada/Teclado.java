@@ -26,14 +26,9 @@ public class Teclado implements KeyListener{
 	}
 	
 	
-	/**
-	 * Código Teclas:
-	 * Flecha Izquierda(37), Flecha Arriba(38), Flecha Derecha(39), Flecha Abajo(40)
-	 * Espacio (32)		
-	 */
+	@Override
 	public void keyPressed(KeyEvent e) {
 		//System.out.println(e.getKeyCode()); Imprime el valor de la tecla presionada.
-		
 		teclas[e.getKeyCode()] = true;
 	}
 
@@ -44,9 +39,7 @@ public class Teclado implements KeyListener{
 		
 	}
 	
+	// Método vacío pues no nos interesa, pero hay que implementar al usar la interfaz KeyListener.
 	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void keyTyped(KeyEvent e) {}
 }
