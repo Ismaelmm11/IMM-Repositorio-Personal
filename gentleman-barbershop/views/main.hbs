@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{title}}</title>
+        <meta name="description" content="{{description}}">
+        <meta name="keywords" content="{{keywords}}">
+        <link rel="stylesheet" href="estilo.css">
+    </head>
+    <body>
+        {{> header}}
+        
+        <div id="componente">
+            {{> (includePartial page)}} 
+        </div>
+
+        {{> footer}}
+        
+        <img src="calavera.gif" alt="">
+        <script src="header.js"></script>
+        <script src="navegacion.js"></script>
+    </body>
+</html>

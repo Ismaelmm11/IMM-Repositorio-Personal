@@ -1,0 +1,50 @@
+<header>
+    <nav>
+        <div class="menu">
+            <ul class="ul-left">
+                <li>
+                    <a href="/reserva" data-componente="reserva">
+                        Cita
+                    </a>
+                </li>
+                <li>
+                    <a href="/test" data-componente="test">
+                        Micropigmentación
+                    </a>
+                </li>
+                <li>
+                    <a href="">
+                        Tatuajes
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="logo">
+            <a href="/index" data-componente="index">
+                <img src="calavera.gif" alt="">    
+            </a>
+               
+        </div>
+        <div class="menu ul-right">
+            <ul class="ul-right">
+                <li>
+                    <a href="">
+                        Conoce al equipo
+                    </a>
+                </li>
+                {{#if isAdmin}}
+                  <li>
+                    <a href="/gestion" data-componente="gestion">Panel de Gestión</a>
+                  </li>
+                  <li>
+                    <a href="/horario" data-componente="horario">Horario</a>
+                  </li>
+                {{/if}}
+                <li>
+                    <a href="/login" data-componente="login">Iniciar Sesión</a>
+                </li>
+            </ul>
+            
+        </div>
+    </nav>
+</header>

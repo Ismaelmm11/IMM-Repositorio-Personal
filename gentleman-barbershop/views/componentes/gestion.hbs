@@ -1,0 +1,32 @@
+<h2>Panel de Gestión (Administrador)</h2>
+
+<h3>Crear Marca</h3>
+<form action="/gestion/crear-marca" method="POST">
+  <label for="nombre-marca">Nombre de la Marca:</label>
+  <input type="text" id="nombre-marca" name="nombre" required>
+  <button type="submit">Crear Marca</button>
+</form>
+
+<h3>Crear Categoría</h3>
+<form action="/gestion/crear-categoria" method="POST">
+  <label for="nombre-categoria">Nombre de la Categoría:</label>
+  <input type="text" id="nombre-categoria" name="nombre" required>
+  <button type="submit">Crear Categoría</button>
+</form>
+
+<h3>Crear Servicio</h3>
+<form action="/gestion/crear-servicio" method="POST">
+  <label for="nombre-servicio">Nombre del Servicio:</label>
+  <input type="text" id="nombre-servicio" name="nombre" required>
+  <br>
+  <label for="descripcion-servicio">Descripción:</label>
+  <textarea id="descripcion-servicio" name="descripcion" required></textarea>
+  <br>
+  <label for="precio-servicio">Precio (€):</label>
+  <input type="number" step="0.01" id="precio-servicio" name="precio" required>
+  <br>
+  <label for="duracion-servicio">Duración (minutos):</label>
+  <input type="number" id="duracion-servicio" name="duracion" required>
+  <br>
+  <button type="submit">Crear Servicio</button>
+</form>

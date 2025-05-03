@@ -1,0 +1,151 @@
+body {
+    width: 100%;
+    height: 100%; 
+    margin: 0 auto;
+ }
+
+header {
+    width: inherit;
+    /*position: fixed;*/
+    display: flex;
+    justify-content: center;
+    background-color: transparent;
+    color: white;
+    transition: all 0.4s ease-in-out;
+}
+
+header:hover {
+  background-color: white;
+  box-shadow: 0px 3px 5px rgba(2, 1, 22, 0.5);
+  color: black;
+}
+
+header.scrolled{
+  background-color: white;
+  box-shadow: 0px 3px 5px rgba(2, 1, 22, 0.5);
+  color: black;
+}
+ 
+ nav {
+   max-width: 1400px;
+   width: 100%;
+   display: flex;
+   justify-content: space-around;
+   align-items: center;
+   text-align:center;
+   gap: 15px;
+   padding: 10px 25px;
+ }
+ 
+ ul {
+   display: flex;
+   padding-inline-start: 0px;
+   list-style: none;
+   font-size: 1.1rem;
+   gap: 1.2em;
+ }
+
+ .ul-left{
+    justify-content: start;
+    padding-left: 1em;
+ }
+
+ .ul-right{
+    justify-content: end;
+    padding-right: 1em;
+ }
+ 
+ .menu {
+   display: flex;
+   width: 43%;
+   align-items: center;
+ }
+ 
+ .logo {
+   max-width: 10%;
+ }
+
+ .logo img{
+    height: 4em;
+ }
+
+ li a{
+  text-decoration: none;
+  color: inherit;
+ }
+
+ #img_perfil{
+  height: 1.5em;
+ }
+ 
+.portada {
+  height: 100vh;
+  background: linear-gradient(to bottom, #1C1C1C, #474438 );
+}
+
+.portada2 {
+  height: 100vh;
+  background: linear-gradient(to bottom, #1C1C1C, #dad5c2 );
+}
+.portada3 {
+  height: 100vh;
+  background: linear-gradient(to top, #1C1C1C, #dad5c2 );
+}
+
+.portada_div1 {
+  height: inherit;
+
+}
+
+.portada img{
+  width: 30em;
+
+}
+
+/*CSS del footer*/
+
+.footer {
+  grid-area: footer;
+  display: flex;
+  width: auto;
+  background-color: black;
+  color: white;
+  padding: 20px;
+}
+
+.footer div {
+  flex: 1;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.footer p {
+  margin: 5px;
+}
+
+.redes_sociales {
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.redes_sociales img {
+  width: 40px;
+  height: 40px;
+  transition: transform 0.3s ease;
+}
+
+.img-validacion {
+  border: 0;
+  width: 88px;
+  height: 31px;
+}
+
+.footer img:hover {
+  transform: scale(1.2);
+  filter: brightness(1.2);
+}
+       

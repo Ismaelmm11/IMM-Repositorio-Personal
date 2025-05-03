@@ -1,0 +1,220 @@
+<!-- src/vistas/componentes/calendario.hbs -->
+<div class="calendar-container">
+    <div class="calendar-header">
+        <span class="nav-arrow" id="prevWeek">◀</span>
+        <h2>Semana del <span id="weekRange"></span></h2>
+        <span class="nav-arrow" id="nextWeek">▶</span>
+    </div>
+    <table id="calendario">
+        <thead id="dias"></thead>
+        <tbody id="horas"></tbody>
+    </table>
+</div>
+
+<div id="miniPanel">
+    <h3 id="panelTitle"></h3>
+    <p id="panelInfo"></p>
+    <button onclick="cerrarPanel()">Cerrar</button>
+</div>
+
+<style>
+    .calendar-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        font-family: Arial, sans-serif;
+    }
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .nav-arrow {
+        font-size: 24px;
+        cursor: pointer;
+        padding: 5px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 5px;
+        text-align: center;
+        vertical-align: top;
+        height: 60px;
+        cursor: pointer;
+    }
+    th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+    }
+    .appointment {
+        background-color: #a0d2eb;
+        border-radius: 4px;
+        margin: 2px;
+        padding: 2px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+    .appointment.pendiente { background-color: #a0d2eb; }
+    .appointment.cerrada { background-color: #a0ebab; }
+    .appointment.cancelada { background-color: #ebabab; }
+    .appointment.descanso { background-color: #d3d3d3; }
+    .time-slot {
+        position: relative;
+    }
+    #miniPanel {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px;
+        background-color: #fff;
+        border: 2px solid #333;
+        padding: 15px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+    #miniPanel h3 {
+        margin: 0 0 10px;
+    }
+    #miniPanel button {
+        margin-top: 10px;
+        padding: 5px 10px;
+    }
+</style>
+
+<script>
+    const idPeluquero = {{idPeluquero}};
+    const thead = document.getElementById('dias');
+    const tbody = document.getElementById('horas');
+    const prevWeek = document.getElementById('prevWeek');
+    const nextWeek = document.getElementById('nextWeek');
+    const weekRange = document.getElementById('weekRange');
+    const miniPanel = document.getElementById('miniPanel');
+    const panelTitle = document.getElementById('panelTitle');
+    const panelInfo = document.getElementById('panelInfo');
+
+    let currentDate = new Date('2025-03-10'); // Iniciar en la semana de la cita
+
+    async function cargarCitas(fechaInicio, fechaFin) {
+        const response = await fetch(`/citas/peluquero/${idPeluquero}?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
+        const citasBackend = await response.json();
+        const citas = citasBackend.map(cita => {
+            const diaSemana = new Date(cita.fecha).getDay() - 1; // 0 = Lunes, 6 = Domingo
+            const [hours, minutes, seconds] = cita.hora.split(':').map(Number);
+            const horaInicio = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            const totalMinutes = hours * 60 + minutes + cita.duracion;
+            const newHours = Math.floor(totalMinutes / 60);
+            const newMinutes = totalMinutes % 60;
+            const horaFin = `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+            return {
+                dia: diaSemana,
+                horaInicio,
+                horaFin,
+                nombre: `${cita.clienteNombre} - ${cita.servicioNombre}`,
+                estado: cita.estado,
+            };
+        });
+        return citas;
+    }
+
+    async function updateCalendar() {
+        const inicioSemana = new Date(currentDate);
+        inicioSemana.setDate(currentDate.getDate() - currentDate.getDay() + 1);
+
+        let filaDias = '<tr><th>Hora</th>';
+        const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        for (let i = 0; i < 7; i++) {
+            const dia = new Date(inicioSemana);
+            dia.setDate(inicioSemana.getDate() + i);
+            const diaNum = dia.getDate();
+            const mes = dia.getMonth() + 1;
+            filaDias += `<th>${diasSemana[i]} ${diaNum}/${mes}</th>`;
+        }
+        filaDias += '</tr>';
+        thead.innerHTML = filaDias;
+
+        const primerDia = new Date(inicioSemana);
+        const ultimoDia = new Date(inicioSemana);
+        ultimoDia.setDate(inicioSemana.getDate() + 6);
+        weekRange.textContent = `${primerDia.getDate()}/${primerDia.getMonth() + 1} - ${ultimoDia.getDate()}/${ultimoDia.getMonth() + 1}`;
+
+        const fechaInicio = primerDia.toISOString().split('T')[0];
+        const fechaFin = ultimoDia.toISOString().split('T')[0];
+
+        const citas = await cargarCitas(fechaInicio, fechaFin);
+
+        tbody.innerHTML = '';
+        const inicio = 9;
+        const fin = 19;
+        const intervalo = 15;
+        for (let hora = inicio; hora < fin; hora++) {
+            for (let minuto = 0; minuto < 60; minuto += intervalo) {
+                const tr = document.createElement('tr');
+                const horaStr = `${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`;
+                tr.innerHTML = `<td>${horaStr}</td>`;
+                for (let i = 0; i < 7; i++) {
+                    tr.innerHTML += `<td class="time-slot" data-dia="${i}" data-hora="${horaStr}"></td>`;
+                }
+                tbody.appendChild(tr);
+            }
+        }
+
+        citas.forEach(cita => {
+            const [horaIni, minIni] = cita.horaInicio.split(':').map(Number);
+            const [horaFin, minFin] = cita.horaFin.split(':').map(Number);
+            const inicioMinutos = horaIni * 60 + minIni;
+            const finMinutos = horaFin * 60 + minFin;
+            const duracionMinutos = finMinutos - inicioMinutos;
+
+            const filaInicio = Math.floor((inicioMinutos - (inicio * 60)) / intervalo);
+            const filaFin = Math.floor((finMinutos - (inicio * 60)) / intervalo);
+            const altura = (filaFin - filaInicio) * 60;
+
+            if (filaInicio >= 0 && filaInicio < tbody.rows.length) {
+                const celda = tbody.rows[filaInicio].cells[cita.dia + 1];
+                if (celda) {
+                    celda.innerHTML = `<div class="appointment ${cita.estado}" style="height: ${altura}px; line-height: ${altura}px;">${cita.nombre}</div>`;
+                }
+            }
+        });
+
+        const celdas = document.querySelectorAll('.time-slot');
+        celdas.forEach(celda => {
+            celda.addEventListener('click', () => {
+                const dia = celda.getAttribute('data-dia');
+                const hora = celda.getAttribute('data-hora');
+                const diaNombre = diasSemana[dia];
+                mostrarPanel(diaNombre, hora, celda.innerHTML);
+            });
+        });
+    }
+
+    function mostrarPanel(dia, hora, contenidoCelda) {
+        panelTitle.textContent = `${dia} a las ${hora}`;
+        panelInfo.textContent = contenidoCelda ? `Cita: ${contenidoCelda.replace(/<[^>]*>/g, '')}` : 'No hay cita programada';
+        miniPanel.style.display = 'block';
+    }
+
+    function cerrarPanel() {
+        miniPanel.style.display = 'none';
+    }
+
+    prevWeek.addEventListener('click', () => {
+        currentDate.setDate(currentDate.getDate() - 7);
+        updateCalendar();
+    });
+
+    nextWeek.addEventListener('click', () => {
+        currentDate.setDate(currentDate.getDate() + 7);
+        updateCalendar();
+    });
+
+    updateCalendar();
+</script>

@@ -1,0 +1,249 @@
+<h1>{{title}}</h1>
+
+<h2>Marca</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each marca}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{nombre}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Categoria</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each categoria}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{nombre}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Producto</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Precio</th>
+      <th>Marca ID</th>
+      <th>Categoria ID</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each producto}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{nombre}}</td>
+        <td>{{precio}}</td>
+        <td>{{marca_id}}</td>
+        <td>{{categoria_id}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Multimedia_Producto</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Ruta</th>
+      <th>Tipo</th>
+      <th>Producto ID</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each multimediaProducto}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{ruta}}</td>
+        <td>{{tipo}}</td>
+        <td>{{producto_id}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Usuario</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Apellidos</th>
+      <th>Fecha Nac</th>
+      <th>Edad</th>
+      <th>Telefono</th>
+      <th>Num Cortes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each usuario}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{nombre}}</td>
+        <td>{{apellidos}}</td>
+        <td>{{fecha_nac}}</td>
+        <td>{{edad}}</td>
+        <td>{{telefono}}</td>
+        <td>{{num_cortes}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Perfil</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Usuario ID</th>
+      <th>Tipo</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each perfil}}
+      <tr>
+        <td>{{usuario_id}}</td>
+        <td>{{tipo}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Servicio</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>Precio</th>
+      <th>Duración</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each servicio}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{nombre}}</td>
+        <td>{{descripcion}}</td>
+        <td>{{precio}}</td>
+        <td>{{duracion}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Cita</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Fecha</th>
+      <th>Hora Inicio</th>
+      <th>Hora Fin</th>
+      <th>Estado</th>
+      <th>Precio Final</th>
+      <th>Cliente ID</th>
+      <th>Peluquero ID</th>
+      <th>Servicio ID</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each cita}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{fecha}}</td>
+        <td>{{hora_ini}}</td>
+        <td>{{hora_fin}}</td>
+        <td>{{estado}}</td>
+        <td>{{precio_final}}</td>
+        <td>{{cliente_id}}</td>
+        <td>{{peluquero_id}}</td>
+        <td>{{servicio_id}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Reserva_Producto_Cita</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Cita ID</th>
+      <th>Producto ID</th>
+      <th>Cantidad</th>
+      <th>Precio Final</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each reservaProductoCita}}
+      <tr>
+        <td>{{cita_id}}</td>
+        <td>{{producto_id}}</td>
+        <td>{{cantidad}}</td>
+        <td>{{precio_final}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Pedido</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Precio Final</th>
+      <th>Fecha</th>
+      <th>ID Cliente</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each pedido}}
+      <tr>
+        <td>{{id}}</td>
+        <td>{{precio_final}}</td>
+        <td>{{fecha}}</td>
+        <td>{{id_cliente}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<h2>Producto_Pedido</h2>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Pedido ID</th>
+      <th>Producto ID</th>
+      <th>Cantidad</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each productoPedido}}
+      <tr>
+        <td>{{pedido_id}}</td>
+        <td>{{producto_id}}</td>
+        <td>{{cantidad}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

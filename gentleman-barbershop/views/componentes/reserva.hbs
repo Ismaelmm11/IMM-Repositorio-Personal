@@ -1,0 +1,63 @@
+<h2>Reservar Cita</h2>
+
+{{#if error}}
+  <p style="color: red;">{{error}}</p>
+{{/if}}
+
+<p>Servicios disponibles: {{servicios.length}}</p>
+<p>Peluqueros disponibles: {{peluqueros.length}}</p>
+
+<form id="cita-form">
+  <h3>Selecciona el Servicio y Peluquero</h3>
+  <label for="servicio">Servicio:</label>
+  <select id="servicio" name="servicio_id" required>
+    <option value="">Selecciona un servicio</option>
+    {{#each servicios}}
+      <option value="{{this.id}}">{{this.nombre}}</option>
+    {{/each}}
+  </select>
+  <br>
+
+  <label for="peluquero">Peluquero:</label>
+  <select id="peluquero" name="peluquero_id" required>
+    <option value="">Selecciona un peluquero</option>
+    {{#each peluqueros}}
+      <option value="{{this.id}}">{{this.nombre}} {{this.apellidos}}</option>
+    {{/each}}
+  </select>
+  <br>
+
+  <label for="fecha">Fecha:</label>
+  <input type="date" id="fecha" name="fecha" required>
+  <br>
+
+  <label for="hora">Hora:</label>
+  <input type="time" id="hora" name="hora" required>
+  <br>
+
+  <h3>Cliente Registrado</h3>
+  <div id="cliente-registrado-form">
+    <label for="telefono-registrado">Teléfono:</label>
+    <input type="text" id="telefono-registrado" name="telefono" required>
+    <button type="button" onclick="submitCita('registrado')">Reservar (Cliente Registrado)</button>
+  </div>
+
+  <h3>Nuevo Cliente</h3>
+  <div id="nuevo-cliente-form">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required>
+    <br>
+    <label for="apellidos">Apellidos:</label>
+    <input type="text" id="apellidos" name="apellidos" required>
+    <br>
+    <label for="fecha_nac">Fecha de Nacimiento:</label>
+    <input type="date" id="fecha_nac" name="fecha_nac" required>
+    <br>
+    <label for="telefono-nuevo">Teléfono:</label>
+    <input type="text" id="telefono-nuevo" name="telefono" required>
+    <br>
+    <button type="button" onclick="submitCita('nuevo')">Reservar (Nuevo Cliente)</button>
+  </div>
+</form>
+
+<script src="reserva.js"></script>
