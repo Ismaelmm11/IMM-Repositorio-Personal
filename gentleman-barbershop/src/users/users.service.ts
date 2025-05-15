@@ -192,21 +192,19 @@ export class UsersService {
     return result;
   }
 
-  async getCitasPorRangoFechas(start: string, end: string): Promise<any[]> {
+  async getCitasPorRangoFecha(fechaini: string, fechafin: string): Promise<any[]> {
     const result = await this.databaseService.query<RowDataPacket[]>(
-      `
-        SELECT c.*, u.nombre AS clienteNombre, s.nombre AS servicioNombre
-        FROM Cita c
-        LEFT JOIN Usuario u ON c.cliente_id = u.id
-        LEFT JOIN Servicio s ON c.servicio_id = s.id
-        WHERE c.fecha BETWEEN ? AND ?
-        ORDER BY c.fecha ASC, c.hora_ini ASC
-      `,
-      [start, end]
+      `SELECT c.*, u.nombre AS clienteNombre, s.nombre AS servicioNombre
+       FROM Cita c
+       LEFT JOIN Usuario u ON c.cliente_id = u.id
+       LEFT JOIN Servicio s ON c.servicio_id = s.id
+       WHERE c.fecha BETWEEN ? AND ?
+       ORDER BY c.fecha ASC, c.hora_ini ASC`,
+      [fechaini, fechafin],
     );
-  
     return result;
   }
+  
 
   async getClientes(): Promise<Peluquero[]> {
     const result = await this.databaseService.query<RowDataPacket[]>(

@@ -1,5 +1,150 @@
-<h2>Bienvenido a Gentleman Barbershop</h2>
-{{#if isAdmin}}
-  <p>Bienvenido Admin</p>
-{{/if}}
-<p>Esta es la página principal.</p>
+<!-- Banner Principal -->
+    <section class="banner">
+        <div class="container">
+            <div class="banner-content">
+                <div class="banner-image animate">
+                    <img src="https://via.placeholder.com/500x600" alt="Hombre con barba bien cuidada">
+                </div>
+                <div class="banner-text animate delay-1">
+                    <p class="banner-subtitle">Desde 2015 dando lo mejor de nosotros</p>
+                    <h1 class="banner-title">
+                        <span>HUMILDAD</span>
+                        <span>ESTILO</span>
+                        <span>Y BUEN ROLLO</span>
+                    </h1>
+                    <a href="#" class="btn"><span>RESERVA AHORA</span></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+     <!-- Sección de GIFs -->
+    <section class="gifs-section">
+        <div class="container">
+            <div class="gifs-container">
+                <div class="gif-block animate">
+                    <div class="gif-placeholder"></div>
+                    <h3 class="gif-caption">CORTES CON PRECISIÓN Y ESTILO</h3>
+                </div>
+                <div class="gif-block animate delay-1">
+                    <div class="gif-placeholder"></div>
+                    <h3 class="gif-caption">EXPERIENCIA ÚNICA EN ELDA</h3>
+                </div>
+                <div class="gif-block animate delay-2">
+                    <div class="gif-placeholder"></div>
+                    <h3 class="gif-caption">ATENCIÓN QUE TE HACE SENTIR EN CASA</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Servicios -->
+    <section class="services-section">
+        <div class="container">
+            <h2 class="section-title animate">NUESTROS SERVICIOS</h2>
+            <div class="services-container">
+                <div class="service-card invisible">
+                    <div class="service-card-inner animate">
+                        <div class="service-image" data-service="Micropigmentación"></div>
+                        <div class="service-content">
+                            <h3 class="service-title">Micropigmentación</h3>
+                            <p class="service-description">Realza tus facciones con técnicas avanzadas de micropigmentación capilar y facial</p>
+                            <a href="#" class="btn"><span>Saber más</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="service-card invisible">
+                    <div class="service-card-inner animate delay-1">
+                        <div class="service-image" data-service="Barbería"></div>
+                        <div class="service-content">
+                            <h3 class="service-title">Barbería</h3>
+                            <p class="service-description">Cortes clásicos y modernos, arreglo de barba y tratamientos capilares de primera calidad</p>
+                            <a href="#" class="btn"><span>Saber más</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="service-card invisible">
+                    <div class="service-card-inner animate delay-2">
+                        <div class="service-image" data-service="Tatuajes"></div>
+                        <div class="service-content">
+                            <h3 class="service-title">Tatuajes</h3>
+                            <p class="service-description">Arte corporal personalizado por artistas experimentados en diversos estilos</p>
+                            <a href="#" class="btn"><span>Saber más</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Sección de Bloques Informativos -->
+    <section class="info-section">
+        <div class="container" style="display: flex; align-items:center;">
+            <div class="info-blocks">
+                <div class="info-block animate">
+                    <div class="block-content">
+                        <div class="block-image">
+                            <img src="https://via.placeholder.com/400x300" alt="Nuestro equipo">
+                        </div>
+                        <div class="block-text">
+                            <h3 class="block-title">NUESTRO EQUIPO</h3>
+                            <p class="block-description">Profesionales apasionados por su trabajo, con años de experiencia y formación continua para ofrecerte lo mejor</p>
+                            <a href="#" class="btn ancho50"><span>Ver más</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-block animate delay-1">
+                    <div class="block-content">
+                        <div class="block-text">
+                            <h3 class="block-title">GALERÍA</h3>
+                            <p class="block-description">Descubre nuestros mejores trabajos y el ambiente único de Gentleman's Barbershop</p>
+                            <div class="gallery-grid">
+                                <div class="gallery-item"></div>
+                                <div class="gallery-item"></div>
+                                <div class="gallery-item"></div>
+                                <div class="gallery-item"></div>
+                            </div>
+                            <a href="#" class="btn ancho50"><span>Ver más</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-block animate delay-2">
+                    <div class="block-content">
+                        <div class="block-image">
+                            <img src="https://via.placeholder.com/400x300" alt="Productos de barbería">
+                        </div>
+                        <div class="block-text">
+                            <h3 class="block-title">TIENDA</h3>
+                            <p class="block-description">Productos profesionales para el cuidado de barba y cabello. Lo que usamos en nuestra barbería, disponible para ti</p>
+                            <a href="#" class="btn ancho50"><span>Ver más</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const elementsToAnimate = document.querySelectorAll('.animate, .invisible');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            // Si tiene clase "animate", le agregamos "visible"
+            if (entry.target.classList.contains('animate')) {
+            entry.target.classList.add('visible');
+            }
+
+            // Si tiene clase "invisible", la reemplazamos por "visible"
+            if (entry.target.classList.contains('invisible')) {
+            entry.target.classList.add('no');
+            }
+
+            observer.unobserve(entry.target);
+        }
+        });
+    }, { threshold: 0.1 });
+
+    elementsToAnimate.forEach(element => observer.observe(element));
+    });
+    </script>

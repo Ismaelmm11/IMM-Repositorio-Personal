@@ -129,10 +129,14 @@ export class AppController {
     };
   }
 
-  @Get('horario/eventos')
+  @Get('horario/eventos-dia')
 async obtenerEventos(@Query('fecha') fecha: string) {
   const fechaSeleccionada = fecha ? new Date(fecha) : new Date();
   const fechaFormateada = fechaSeleccionada.toISOString().split('T')[0];
+
+
+  
+  console.log(fecha);
 
   const citas = await this.usersService.getCitasPorFecha(fechaFormateada);
 
@@ -205,6 +209,85 @@ async obtenerEventos(@Query('fecha') fecha: string) {
   return eventosProcesados;
 }
 
+@Get('horario/eventos-semana')
+async obtenerEventosSemana(@Query('fechaini') fechaini: string, @Query('fechafin') fechafin: string) {
+  if (!fechaini || !fechafin) {
+    throw new Error('Debe proporcionar un rango de fechas válido (fechaini y fechafin).');
+  }
+
+  console.log(fechaini + "y" + fechafin);
+
+  const fechaIniFormateada = new Date(fechaini).toISOString().split('T')[0];
+  const fechaFinFormateada = new Date(fechafin).toISOString().split('T')[0];
+
+  const citas = await this.usersService.getCitasPorRangoFecha(fechaIniFormateada, fechaFinFormateada);
+
+  const coloresPorServicio: { [key: string]: { backgroundColor: string; borderColor: string } } = {
+    'Corte de pelo': { backgroundColor: '#90EE90', borderColor: '#008000' },
+    'Afeitado': { backgroundColor: '#ADD8E6', borderColor: '#4682B4' },
+    'Tinte': { backgroundColor: '#FFB6C1', borderColor: '#FF69B4' },
+    'Sin servicio': { backgroundColor: '#D3D3D3', borderColor: '#A9A9A9' },
+  };
+
+  const eventosCrudos = citas.map(cita => {
+    const horaIniStr = cita.hora_ini.toString().slice(0, 5);
+    const horaFinStr = cita.hora_fin.toString().slice(0, 5);
+
+    // ✅ CORREGIDO: Evitar desfase de día usando fecha local
+    const citaFecha = new Date(cita.fecha).toLocaleDateString('en-CA');
+
+    const servicioNombre = cita.servicioNombre || 'Sin servicio';
+    const colores = coloresPorServicio[servicioNombre] || coloresPorServicio['Sin servicio'];
+
+    return {
+      id: String(cita.id),
+      title: `Cita - ${cita.clienteNombre || 'Sin cliente'}`,
+      startStr: `${citaFecha}T${horaIniStr}:00`,
+      endStr: `${citaFecha}T${horaFinStr}:00`,
+      cliente: cita.clienteNombre || 'Sin cliente',
+      servicio: cita.servicioNombre || 'Sin servicio',
+      estado: cita.estado,
+      horaIni: horaIniStr,
+      horaFin: horaFinStr,
+      backgroundColor: colores.backgroundColor,
+      borderColor: colores.borderColor,
+      textColor: '#000000',
+      eventGroupId: 'citas',
+    };
+  });
+
+  const eventosProcesados = eventosCrudos.map((evento, index, arr) => {
+    const start = new Date(evento.startStr);
+    const end = new Date(evento.endStr);
+
+    const overlappingEvents = arr.filter((ev, i) => {
+      if (i === index) return false;
+      const s = new Date(ev.startStr);
+      const e = new Date(ev.endStr);
+      return s < end && start < e;
+    });
+
+    const allInSameOverlapGroup = arr.filter(ev => {
+      const s = new Date(ev.startStr);
+      const e = new Date(ev.endStr);
+      return s < end && start < e;
+    });
+
+    return {
+      ...evento,
+      start: evento.startStr,
+      end: evento.endStr,
+      overlapLevel: overlappingEvents.length > 0 ? 1 : 0,
+      maxOverlap: allInSameOverlapGroup.length,
+    };
+  });
+
+  console.log(eventosProcesados);
+
+  return eventosProcesados;
+}
+
+
 @Get('horario/datos-formulario')
 async obtenerDatosFormulario() {
   const clientes = await this.usersService.getClientes();
@@ -258,6 +341,8 @@ async borrarCita(@Param('id') id: number) {
       //await this.testService.clearDatabase();
 
       const data = await this.testService.getAllData();
+
+      console.log(data);
 
       return res.render(`componentes/${partialName}`, {
         title: 'Prueba de Base de Datos',

@@ -6,6 +6,7 @@
   #calendar {
     max-width: 1100px;
     margin: 20px auto;
+    max-height: calc(100vh - 100px);     overflow-y: auto;
   }
 
   .fc-event {
@@ -27,6 +28,7 @@
     border-radius: 4px;
     font-size: 12px;
     overflow: hidden;
+    margin: 0 auto;
   }
 
   button {
@@ -71,8 +73,12 @@
 </style>
 
 <div>
-  <button onclick="cambiarDia('anterior')">← Día Anterior</button>
-  <button onclick="cambiarDia('siguiente')">Día Siguiente →</button>
+  <button onclick="cambiarFecha('anterior')">← Día Anterior</button>
+  <button onclick="cambiarFecha('siguiente')">Día Siguiente →</button>
+  <select id="vista" onchange="cambiarVista()">
+      <option value="timeGridDay">DIA</option>
+      <option value="timeGridWeek">SEMANA</option>
+  </select>
   <input type="hidden" id="fecha-actual" value="{{fecha}}">
 </div>
 
@@ -89,6 +95,7 @@
 </div>
 
 <script>
+  const eventosCache = {};
   let calendar;
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -97,19 +104,31 @@
 
     calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'timeGridDay',
+      headerToolbar: {
+        left: '',
+        center: 'title',
+        right: ''
+      },
       initialDate: fechaActual,
       slotMinTime: '08:00:00',
       slotMaxTime: '22:00:00',
       allDaySlot: false,
-      slotDuration: '00:10:00',
-      slotLabelInterval: '00:30:00',
+      slotDuration: '00:30:00',
+      slotLabelInterval: '01:00:00',
+      contentHeight: 'auto',
+      height: 'auto',
       nowIndicator: true,
       expandRows: true,
       selectable: true,
+      firstDay: 1,
+      hiddenDays: [],
       select: function(info) {
         abrirModal(info.startStr);
       },
-      events: '/horario/eventos?fecha=' + fechaActual,
+
+      dateClick: function(info) {
+  console.log('Celda pulsada:', info.dateStr);
+},
 
       eventDidMount: function(info) {
         const el = info.el;
@@ -163,6 +182,9 @@
     window.formDatos = datos;
     window.formCitaId = citaId;
     window.datosFormulario = datosFormulario;
+    window.formFecha = startStr.split('T')[0]; // Guarda solo la fecha real
+
+    
 
     console.log('citaId en abrirModal:', citaId);
     console.log('Estado de la cita:', datos?.estado);
@@ -268,7 +290,7 @@
       servicio_id: form.servicio_id.value,
       hora_ini: form.hora_ini.value,
       hora_fin: form.hora_fin.value,
-      fecha: document.getElementById('fecha-actual').value
+      fecha: window.formFecha
     };
 
     console.log('window.formCitaId en crearOEditarCita:', window.formCitaId);
@@ -285,14 +307,14 @@
     });
 
     cerrarModal();
-    calendar.refetchEvents();
+    refrescarCalendario();
   }
 
   async function crearDescanso(e) {
     e.preventDefault();
     const form = e.target;
     const data = {
-      fecha: document.getElementById('fecha-actual').value,
+      fecha: window.formFecha,
       hora_ini: form.hora_ini.value,
       hora_fin: form.hora_fin.value
     };
@@ -305,7 +327,7 @@
     });
 
     cerrarModal();
-    calendar.refetchEvents();
+    refrescarCalendario();
   }
 
   async function borrarCita() {
@@ -329,24 +351,134 @@
       }
 
       cerrarModal();
-      calendar.refetchEvents();
+      refrescarCalendario();
     } catch (error) {
       console.error('Error al borrar la cita:', error);
       alert('No se pudo borrar la cita. Por favor, intenta de nuevo.');
     }
   }
 
-  function cambiarDia(direccion) {
-    const fechaInput = document.getElementById('fecha-actual');
-    let fecha = new Date(fechaInput.value);
+  async function cambiarVista() {
+  const nuevaVista = document.getElementById('vista').value;
+  calendar.changeView(nuevaVista);
 
-    if (direccion === 'anterior') {
-      fecha.setDate(fecha.getDate() - 1);
+  const fechaInput = document.getElementById('fecha-actual');
+  let fecha = new Date(fechaInput.value);
+  let eventos = [];
+
+  if (nuevaVista === 'timeGridWeek') {
+    const lunes = new Date(fecha);
+    const domingo = new Date(fecha);
+    const day = lunes.getDay();
+    const diffToMonday = (day === 0 ? -6 : 1 - day);
+    lunes.setDate(lunes.getDate() + diffToMonday);
+    domingo.setDate(lunes.getDate() + 6);
+
+    const fechaini = lunes.toISOString().split('T')[0];
+    const fechafin = domingo.toISOString().split('T')[0];
+    const cacheKey = `semana-${fechaini}-${fechafin}`;
+
+    if (eventosCache[cacheKey]) {
+      eventos = eventosCache[cacheKey];
     } else {
-      fecha.setDate(fecha.getDate() + 1);
+      eventos = await fetch(`/horario/eventos-semana?fechaini=${fechaini}&fechafin=${fechafin}`).then(res => res.json());
+      eventosCache[cacheKey] = eventos;
     }
-
-    const nuevaFecha = fecha.toISOString().split('T')[0];
-    window.location.href = `/horario?fecha=${nuevaFecha}`;
+  } else {
+    const fechaStr = fecha.toISOString().split('T')[0];
+    if (eventosCache[fechaStr]) {
+      eventos = eventosCache[fechaStr];
+    } else {
+      eventos = await fetch(`/horario/eventos-dia?fecha=${fechaStr}`).then(res => res.json());
+      eventosCache[fechaStr] = eventos;
+    }
   }
+
+  console.log(eventos);
+
+  calendar.removeAllEvents();
+  calendar.addEventSource(eventos);
+}
+
+
+async function cambiarFecha(direccion) {
+  const fechaInput = document.getElementById('fecha-actual');
+  let fecha = new Date(fechaInput.value);
+  const vistaActual = calendar.view.type;
+  let incremento = vistaActual === 'timeGridWeek' ? 7 : 1;
+
+  if (direccion === 'anterior') {
+    fecha.setDate(fecha.getDate() - incremento);
+  } else {
+    fecha.setDate(fecha.getDate() + incremento);
+  }
+
+  const nuevaFecha = fecha.toISOString().split('T')[0];
+  fechaInput.value = nuevaFecha;
+  calendar.gotoDate(nuevaFecha);
+
+  let eventos = [];
+  if (vistaActual === 'timeGridWeek') {
+    const lunes = new Date(fecha);
+    const domingo = new Date(fecha);
+    const day = lunes.getDay();
+    const diffToMonday = (day === 0 ? -6 : 1 - day);
+    lunes.setDate(lunes.getDate() + diffToMonday);
+    domingo.setDate(lunes.getDate() + 6);
+
+    const fechaini = lunes.toISOString().split('T')[0];
+    const fechafin = domingo.toISOString().split('T')[0];
+    const cacheKey = `semana-${fechaini}-${fechafin}`;
+
+    if (eventosCache[cacheKey]) {
+      eventos = eventosCache[cacheKey];
+    } else {
+      eventos = await fetch(`/horario/eventos-semana?fechaini=${fechaini}&fechafin=${fechafin}`).then(res => res.json());
+      eventosCache[cacheKey] = eventos;
+    }
+  } else {
+    if (eventosCache[nuevaFecha]) {
+      eventos = eventosCache[nuevaFecha];
+    } else {
+      eventos = await fetch(`/horario/eventos-dia?fecha=${nuevaFecha}`).then(res => res.json());
+      eventosCache[nuevaFecha] = eventos;
+    }
+  }
+
+  console.log(eventos);
+
+  calendar.removeAllEvents();
+  calendar.addEventSource(eventos);
+}
+
+function refrescarCalendario() {
+  const fechaInput = document.getElementById('fecha-actual');
+  const fecha = new Date(fechaInput.value);
+  const vista = calendar.view.type;
+  
+
+  if (vista === 'timeGridWeek') {
+    const lunes = new Date(fecha);
+    const domingo = new Date(fecha);
+    const day = lunes.getDay();
+    const diffToMonday = (day === 0 ? -6 : 1 - day);
+    lunes.setDate(lunes.getDate() + diffToMonday);
+    domingo.setDate(lunes.getDate() + 6);
+
+    const fechaini = lunes.toISOString().split('T')[0];
+    const fechafin = domingo.toISOString().split('T')[0];
+    const cacheKey = `semana-${fechaini}-${fechafin}`;
+
+    delete eventosCache[cacheKey]; // 🔥 Borrar de caché
+  } else {
+    const fechaStr = fecha.toISOString().split('T')[0];
+    delete eventosCache[fechaStr]; // 🔥 Borrar de caché
+  }
+
+  // 🔄 Forzar recarga de eventos
+  cambiarVista();
+}
+
+
+
 </script>

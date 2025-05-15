@@ -1,24 +1,28 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{{title}}</title>
-        <meta name="description" content="{{description}}">
-        <meta name="keywords" content="{{keywords}}">
-        <link rel="stylesheet" href="estilo.css">
-    </head>
-    <body>
-        {{> header}}
-        
-        <div id="componente">
-            {{> (includePartial page)}} 
-        </div>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{description}}">
+    <meta name="keywords" content="{{keywords}}">
+    <title>{{title}}</title>
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/estilo.css">
+</head>
+<body>
+    {{> header}}
+    
+    <div id="componente">
+        {{> (includePartial page)}}
+    </div>
 
-        {{> footer}}
-        
-        <img src="calavera.gif" alt="">
-        <script src="header.js"></script>
-        <script src="navegacion.js"></script>
-    </body>
+    {{> footer}}
+    
+    <script src="/header.js"></script>
+    <script src="/navegacion.js"></script>
+    <script src="/script.js"></script>
+</body>
 </html>
